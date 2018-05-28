@@ -1,4 +1,3 @@
-import sys
 from socket import *
 
 def main():
@@ -10,22 +9,24 @@ def main():
     while True:
         packet = sock.recv(4096)
         packet_len = len(packet)
-        print(packet)
-        print("packet_len:" + str(packet_len))
-        print("")
         i += 1
         
+        src = ":".join(["%02x" % x for x in packet[0:6]])
+        dst = ":".join(["%02x" % x for x in packet[6:12]])
+        type = ntohs(ord(packet[12:13]))
+        print("src:%s > dst:%s, ethertype:%04x, length:%d" % (src, dst, type, packet_len))
         '''
+        #Binary save "data*"
         with open("data" + str(i), "wb") as fout:
             packet = bytearray(packet)
             packet.append(0)
             packet.extend([1, 127])
             fout.write(packet)
         '''
-        src = ":".join(["%02x" % ord(x) for x in packet[0:6]])
-        dst = ":".join(["%02x" % ord(x) for x in packet[6:12]])
-        type = ntohs(ord(packet[12:13]))
-        print("%s > %s, ethertype %04x, length %d" % (src, dst, type, packet_len))
+        print(packet.hex())
+        print("")
+        print("")
+
 
 if __name__ == '__main__':
     main()
