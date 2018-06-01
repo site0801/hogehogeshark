@@ -11,6 +11,7 @@ def main(interface):
     while True:
         i = 0
         j = 0
+        count = 1
         packet = sock.recv(4096)
         packet_len = len(packet)
         dst = ":".join(["%02x" % x for x in packet[0:6]])
@@ -29,8 +30,14 @@ def main(interface):
         packet = packet.hex()
         ##
         for (i,j) in zip(packet[::2], packet[1::2]):
-            print(i+j, end=" "),
-        #print(packet)
+            if count % 8 == 0 and count != 0:
+                print(i+j)
+            elif count % 4 == 0 and count % 8 != 0:
+                print(i+j, end="")
+                print("  ", end=" ")
+            else:
+                print(i+j, end=" ")
+            count += 1
         print("")
         print("")
 
