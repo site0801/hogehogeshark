@@ -3,14 +3,16 @@ import sys
 from socket import *
 
 def main(interface):
-    i = 0
     ETH_P_IP = 0x800
+    ETH_P_ARP = 0x806
     #socket()を作成する
     sock = socket(PF_PACKET, SOCK_RAW, ETH_P_IP)
     sock.bind((interface, ETH_P_IP))
     while True:
+        i = 0
+        j = 0
         packet = sock.recv(4096)
-        packet_len = len(packet
+        packet_len = len(packet)
         dst = ":".join(["%02x" % x for x in packet[0:6]])
         src = ":".join(["%02x" % x for x in packet[6:12]])
         type = ntohs(ord(packet[12:13]))
@@ -25,7 +27,10 @@ def main(interface):
         '''
         #packet内にあるバイナリを16進に変換する(wiresharkの下に表示されてるような感じになる。)
         packet = packet.hex()
-        print(packet)
+        ##
+        for (i,j) in zip(packet[::2], packet[1::2]):
+            print(i+j, end=" "),
+        #print(packet)
         print("")
         print("")
 
