@@ -69,6 +69,8 @@ def packet_analyze(packet):
     print("src:%s > dst:%s, ethertype:%04x, length:%d" % (eth_src, eth_dst, eth_type , packet_len))
     print("ip_ver:%s, ip_head_length:%dByte, ip_ToS:%s" % (ip_ver, ip_head_len, ip_tos))
     print("ip_total_length:%s" % (ip_total_len))
+
+
 if __name__ == '__main__':
     argvs = sys.argv
     argc = len(argvs)
