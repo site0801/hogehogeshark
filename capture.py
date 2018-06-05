@@ -14,13 +14,7 @@ def main(interface):
         count = 1
         packet = sock.recv(4096)
         packet_analyze(packet)
-        #packet_len = len(packet)
-        #dst = ":".join(["%02x" % x for x in packet[0:6]])
-        #src = ":".join(["%02x" % x for x in packet[6:12]])
-        #type = ntohs(ord(packet[12:13]))
-        #print("src:%s > dst:%s, ethertype:%04x, length:%d" % (src, dst, type, packet_len))
         '''
-        #Binary save "data*"
         with open("data" + str(i), "wb") as fout:
             packet = bytearray(packet)
             packet.append(0)
@@ -29,7 +23,6 @@ def main(interface):
         '''
         #packet内にあるバイナリを16進に変換する(wiresharkの下に表示されてるような感じになる。)
         packet = packet.hex()
-        
         ##show clear UI
         for (i,j) in zip(packet[::2], packet[1::2]):
             if count % 16 == 0 and count != 0:
@@ -44,34 +37,43 @@ def main(interface):
         print("")
 
 def packet_analyze(packet):
-    eth_dst = ":".join(["%02x" % x for x in packet[:6]])
-    eth_src = ":".join(["%02x" % x for x in packet[6:12]])
-    eth_type = ntohs(ord(packet[12:13]))
+    #packet_length
     packet_len = len(packet)
+    #Ethernet Destination MAC Address
+    eth_dst = ":".join(["%02x" % x for x in packet[:6]])
+    #Ethernet Source MAC Address
+    eth_src = ":".join(["%02x" % x for x in packet[6:12]])
+    #Ethernet Type
+    ##EthernetHeaderのあとに何が続くかを示す
+    eth_type = ntohs(ord(packet[12:13]))
+    #packetのデータを16進数化
     packet = packet.hex()
+    #IP version
     ip_ver = packet[28]
-    #ipのverを確認する
     if ip_ver == "4":
         ip_ver = "IPv4"
     elif ip_ver == "6":
         ip_ver = "IPv6"
     else:
-        print("IPverがおかしいです。¥n確認してください。")
+        print("IP_verがおかしいです。¥n確認してください。")
+    #IP Header length
     #ip_lengthは"変数*４"した数字が本来のバイト数となる(通信量節約のため)
-    ip_length = packet[29]
-    ip_length = int(ip_length) *4
+    ip_head_len = packet[29]
+    ip_head_len = int(ip_head_len) *4
+    #Type of Service
+    ip_tos = packet[30:32]
+    #Total Length
+    ip_total_len = packet[32:36]
+    
+    #出力
     print("src:%s > dst:%s, ethertype:%04x, length:%d" % (eth_src, eth_dst, eth_type , packet_len))
-    print("ip_ver:%s, ip_length:%dByte" % (ip_ver, ip_length))
-    print(type(ip_length))
-    print(ip_length)
-
+    print("ip_ver:%s, ip_head_length:%dByte, ip_ToS:%s" % (ip_ver, ip_head_len, ip_tos))
+    print("ip_total_length:%s" % (ip_total_len))
 if __name__ == '__main__':
     argvs = sys.argv
     argc = len(argvs)
-
     if argc != 2:
       print("Please confirm argument")
       sys.exit()
     interface = argvs[1]
     main(interface)
-
