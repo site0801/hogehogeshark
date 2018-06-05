@@ -39,9 +39,9 @@ def main(interface):
 def packet_analyze(packet):
     #packet_length
     packet_len = len(packet)
-    #Ethernet Destination MAC Address
+    #Destination MAC Address
     eth_dst = ":".join(["%02x" % x for x in packet[:6]])
-    #Ethernet Source MAC Address
+    #Source MAC Address
     eth_src = ":".join(["%02x" % x for x in packet[6:12]])
     #Ethernet Type
     ##EthernetHeaderのあとに何が続くかを示す
@@ -64,11 +64,34 @@ def packet_analyze(packet):
     ip_tos = packet[30:32]
     #Total Length
     ip_total_len = packet[32:36]
+    #Identification
+    ip_id = packet[36:40]
+    #Flags
+    ip_flag = packet[40]
+    #Flagment offset
+    ip_flag_offset = packet[41:44]
+    #TTL
+    ip_ttl = packet[44]
+    #Next_Header_Protocol
+    ip_protocol = packet[45]
+    #Header Checksum
+    ip_checksum = packet[46:50]
+    #Source IP Address
+    #Destination IP Address
+
+
+
     
     #出力
-    print("src:%s > dst:%s, ethertype:%04x, length:%d" % (eth_src, eth_dst, eth_type , packet_len))
-    print("ip_ver:%s, ip_head_length:%dByte, ip_ToS:%s" % (ip_ver, ip_head_len, ip_tos))
-    print("ip_total_length:%s" % (ip_total_len))
+    print("[Ethernet Header]")
+    print("src:%s >>> dst:%s\nethertype:%04x, length:%d" % (eth_src, eth_dst, eth_type , packet_len))
+    print("[IP Header]")
+    print("ver:%s, head_length:%dByte, ToS:%s" % (ip_ver, ip_head_len, ip_tos))
+    print("total_length:%s, identification:%s" % (ip_total_len, ip_id))
+    print("flags:%s, flagment_offset:%s" % (ip_flag, ip_flag_offset))
+    print("TTL:%s, Next_Header_Protocol:%s, Checksum:%s" % (ip_ttl, ip_protocol, ip_checksum))
+    #print("src:%s >>> dst:%s" % (ip_src, ip_dst))
+    print("[Binary]")
 
 
 if __name__ == '__main__':
