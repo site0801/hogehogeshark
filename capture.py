@@ -1,10 +1,11 @@
 #-*- coding:utf-8 -*-
 import sys
 from socket import *
+ETH_P_IP = 0x800
+ETH_P_ARP = 0x806
+
 
 def main(interface):
-    ETH_P_IP = 0x800
-    ETH_P_ARP = 0x806
     #socket()を作成する
     sock = socket(PF_PACKET, SOCK_RAW, ETH_P_IP)
     sock.bind((interface, ETH_P_IP))
@@ -13,15 +14,8 @@ def main(interface):
         j = 0
         count = 1
         packet = sock.recv(4096)
-        packet_analyze(packet)
-        '''
-        with open("data" + str(i), "wb") as fout:
-            packet = bytearray(packet)
-            packet.append(0)
-            packet.extend([1, 127])
-            fout.write(packet)
-        '''
-        #packet内にあるバイナリを16進に変換する(wiresharkの下に表示されてるような感じになる。)
+        #packet_analyze(packet)
+        eth_analyze(packet)
         packet = packet.hex()
         ##show clear UI
         for (i,j) in zip(packet[::2], packet[1::2]):
@@ -36,7 +30,7 @@ def main(interface):
         print("")
         print("")
 
-def packet_analyze(packet):
+def eth_analyze(packet):
     #packet_length
     packet_len = len(packet)
     #Destination MAC Address
@@ -48,6 +42,10 @@ def packet_analyze(packet):
     eth_type = ntohs(ord(packet[12:13]))
     #packetのデータを16進数化
     packet = packet.hex()
+    #eth_typeの結果からこれ以降が何かを判断して処理を投げる
+    if eth_type == "0800":
+
+    #[IP_Header]
     #IP version
     ip_ver = packet[28]
     if ip_ver == "4":
@@ -71,14 +69,21 @@ def packet_analyze(packet):
     #Flagment offset
     ip_flag_offset = packet[41:44]
     #TTL
-    ip_ttl = packet[44]
+    ip_ttl = packet[44:46]
     #Next_Header_Protocol
-    ip_protocol = packet[45]
+    ip_protocol = packet[46:48]
     #Header Checksum
-    ip_checksum = packet[46:50]
+    ip_checksum = packet[48:52]
     #Source IP Address
+    ip_src_oct1 = int(packet[52:54], 16)
+    ip_src_oct2 = int(packet[54:56], 16)
+    ip_src_oct3 = int(packet[56:58], 16)
+    ip_src_oct4 = int(packet[58:60], 16)
     #Destination IP Address
-
+    ip_dst_oct1 = int(packet[60:62], 16)
+    ip_dst_oct2 = int(packet[62:64], 16)
+    ip_dst_oct3 = int(packet[64:66], 16)
+    ip_dst_oct4 = int(packet[66:68], 16)         
 
 
     
@@ -90,7 +95,7 @@ def packet_analyze(packet):
     print("total_length:%s, identification:%s" % (ip_total_len, ip_id))
     print("flags:%s, flagment_offset:%s" % (ip_flag, ip_flag_offset))
     print("TTL:%s, Next_Header_Protocol:%s, Checksum:%s" % (ip_ttl, ip_protocol, ip_checksum))
-    #print("src:%s >>> dst:%s" % (ip_src, ip_dst))
+    print("src:%s.%s.%s.%s >>> dst:%s.%s.%s.%s" % (ip_src_oct1, ip_src_oct2, ip_src_oct3, ip_src_oct4, ip_dst_oct1, ip_dst_oct2, ip_dst_oct3, ip_dst_oct4))
     print("[Binary]")
 
 
