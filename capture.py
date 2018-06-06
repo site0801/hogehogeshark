@@ -17,6 +17,7 @@ def main(interface):
         #packet_analyze(packet)
         eth_analyze(packet)
         packet = packet.hex()
+        print("[Binary]")
         ##show clear UI
         for (i,j) in zip(packet[::2], packet[1::2]):
             if count % 16 == 0 and count != 0:
@@ -42,9 +43,23 @@ def eth_analyze(packet):
     eth_type = ntohs(ord(packet[12:13]))
     #packetのデータを16進数化
     packet = packet.hex()
-    #eth_typeの結果からこれ以降が何かを判断して処理を投げる
+    #出力
+    print("[Ethernet Header]")
+    print("src:%s >>> dst:%s\nethertype:%04x, length:%d" % (eth_src, eth_dst, eth_type , packet_len))
+    #eth_typeの結果からこれ以降が何かを判断して処理を投げる  
     if eth_type == "0800":
+        ip_analyze(packet)
+    '''
+    elif eth_type == "0806":
+       arp_analyze(packet)
+    elif eth_type == "86DD":
+       ipv6_analyze(packet)
+    '''
+    else:
+            print("このパケットのEthernetHeaderのtypeの数値が異常か対応していない数値です。\n確認してください")
 
+
+def ip_analyze(packet):
     #[IP_Header]
     #IP version
     ip_ver = packet[28]
@@ -84,19 +99,14 @@ def eth_analyze(packet):
     ip_dst_oct2 = int(packet[62:64], 16)
     ip_dst_oct3 = int(packet[64:66], 16)
     ip_dst_oct4 = int(packet[66:68], 16)         
-
-
-    
     #出力
-    print("[Ethernet Header]")
-    print("src:%s >>> dst:%s\nethertype:%04x, length:%d" % (eth_src, eth_dst, eth_type , packet_len))
     print("[IP Header]")
     print("ver:%s, head_length:%dByte, ToS:%s" % (ip_ver, ip_head_len, ip_tos))
     print("total_length:%s, identification:%s" % (ip_total_len, ip_id))
     print("flags:%s, flagment_offset:%s" % (ip_flag, ip_flag_offset))
     print("TTL:%s, Next_Header_Protocol:%s, Checksum:%s" % (ip_ttl, ip_protocol, ip_checksum))
     print("src:%s.%s.%s.%s >>> dst:%s.%s.%s.%s" % (ip_src_oct1, ip_src_oct2, ip_src_oct3, ip_src_oct4, ip_dst_oct1, ip_dst_oct2, ip_dst_oct3, ip_dst_oct4))
-    print("[Binary]")
+
 
 
 if __name__ == '__main__':
