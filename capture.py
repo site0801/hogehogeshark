@@ -48,7 +48,7 @@ def eth_analyze(packet):
     print("src:%s >>> dst:%s\nethertype:%04x, length:%d" % (eth_src, eth_dst, eth_type , packet_len))
     #eth_typeの結果からこれ以降が何かを判断して処理を投げる  
     if eth_type == 0x0800:
-        ip_analyze(packet)
+       ip_analyze(packet)
     elif eth_type == 0x0806:
        arp_analyze(packet)
     elif eth_type == 0x86DD:
@@ -84,6 +84,7 @@ def ip_analyze(packet):
     #TTL
     ip_ttl = packet[44:46]
     #Next_Header_Protocol
+    ##[01:ICMP, 06:TCP, 17:UDP, else:not support protocol]
     ip_protocol = packet[46:48]
     #Header Checksum
     ip_checksum = packet[48:52]
@@ -104,14 +105,32 @@ def ip_analyze(packet):
     print("flags:%s, flagment_offset:%s" % (ip_flag, ip_flag_offset))
     print("TTL:%s, Next_Header_Protocol:%s, Checksum:%s" % (ip_ttl, ip_protocol, ip_checksum))
     print("src:%s.%s.%s.%s >>> dst:%s.%s.%s.%s" % (ip_src_oct1, ip_src_oct2, ip_src_oct3, ip_src_oct4, ip_dst_oct1, ip_dst_oct2, ip_dst_oct3, ip_dst_oct4))
+    #ip_protocol毎に行う処理
+    ##[01:ICMP, 06:TCP, 17:UDP, else:not support protocol]
+    ip_protocol = packet[46:48]
+    if ip_protocol == "01":
+        icmp_analyze(packet)
+    elif ip_protocol == "06":
+        tcp_analyze(packet)
+    elif ip_protocol == "17":
+        udp_analyze(packet)
+    else:
+        print("not support Layer4 protocol.\nごめんなさい！")
 
 def arp_analyze(packet):
     print("arp解析は現在工事中！\nごめんなさい！")
 
-
 def ipv6_analyze(packet):
     print("ipv6解析は現在工事中！\nごめんなさい！")
 
+def icmp_analyze(packet):
+    print("icmp解析は現在工事中！\nごめんなさい！")
+
+def tcp_analyze(packet):
+    print("tcp解析は現在工事中！\nごめんなさい！")
+
+def udp_analyze(packet):
+    print("udp解析は現在工事中！\nごめんなさい！")
 
 if __name__ == '__main__':
     argvs = sys.argv
