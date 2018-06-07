@@ -107,7 +107,6 @@ def ip_analyze(packet):
     print("src:%s.%s.%s.%s >>> dst:%s.%s.%s.%s" % (ip_src_oct1, ip_src_oct2, ip_src_oct3, ip_src_oct4, ip_dst_oct1, ip_dst_oct2, ip_dst_oct3, ip_dst_oct4))
     #ip_protocol毎に行う処理
     ##[01:ICMP, 06:TCP, 17:UDP, else:not support protocol]
-    ip_protocol = packet[46:48]
     if ip_protocol == "01":
         icmp_analyze(packet)
     elif ip_protocol == "06":
@@ -124,8 +123,16 @@ def ipv6_analyze(packet):
     print("ipv6解析は現在工事中！\nごめんなさい！")
 
 def icmp_analyze(packet):
-    print("icmp解析は現在工事中！\nごめんなさい！")
-
+    #icmp_type
+    icmp_type = packet[68:70]
+    #icmp_code
+    icmp_code = packet[70:72]
+    #icmp_checksum
+    icmp_checksum = packet[72:76]
+    icmp_data = packet[76:]
+    #出力
+    print("type:%s, code:%s, checksum:%s" % (icmp_type, icmp_code, icmp_checksum))
+    print("data:%s" % icmp_data)
 def tcp_analyze(packet):
     print("tcp解析は現在工事中！\nごめんなさい！")
 
