@@ -129,10 +129,22 @@ def icmp_analyze(packet):
     icmp_code = packet[70:72]
     #icmp_checksum
     icmp_checksum = packet[72:76]
-    icmp_data = packet[76:]
+    #icmp_id
+    icmp_id = packet[76:80]
+    #icmp_seq
+    icmp_seq = packet[80:84]
+    #icmp_data
+    icmp_data = packet[84:]
     #出力
+    print("[ICMP Header]")
     print("type:%s, code:%s, checksum:%s" % (icmp_type, icmp_code, icmp_checksum))
-    print("data:%s" % icmp_data)
+    if icmp_type == "00" or icmp_type == "08":
+        print("id:%s, sequenece:%s" % (icmp_id, icmp_seq))
+        print("[ICMP Data]")
+        print("data:%s" % icmp_data)
+    else:
+        print("")
+
 def tcp_analyze(packet):
     print("tcp解析は現在工事中！\nごめんなさい！")
 
