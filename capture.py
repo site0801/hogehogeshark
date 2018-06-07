@@ -47,17 +47,15 @@ def eth_analyze(packet):
     print("[Ethernet Header]")
     print("src:%s >>> dst:%s\nethertype:%04x, length:%d" % (eth_src, eth_dst, eth_type , packet_len))
     #eth_typeの結果からこれ以降が何かを判断して処理を投げる  
-    if eth_type == "0800":
+    if eth_type == 0x0800:
         ip_analyze(packet)
-    '''
-    elif eth_type == "0806":
+    elif eth_type == 0x0806:
        arp_analyze(packet)
-    elif eth_type == "86DD":
+    elif eth_type == 0x86DD:
        ipv6_analyze(packet)
-    '''
     else:
-            print("このパケットのEthernetHeaderのtypeの数値が異常か対応していない数値です。\n確認してください")
-
+        print("このパケットのEthernetHeaderのtypeの数値が異常か対応していない数値です。\n確認してください")
+        print(type(eth_type))
 
 def ip_analyze(packet):
     #[IP_Header]
@@ -68,9 +66,9 @@ def ip_analyze(packet):
     elif ip_ver == "6":
         ip_ver = "IPv6"
     else:
-        print("IP_verがおかしいです。¥n確認してください。")
+        print("IP_verがおかしいか対応していないバージョンです。¥n確認してください。")
     #IP Header length
-    #ip_lengthは"変数*４"した数字が本来のバイト数となる(通信量節約のため)
+    #ip_lengthは"変数*４"した数字が本来のバイト数となる(通信量節約のためそういう仕様らしい)
     ip_head_len = packet[29]
     ip_head_len = int(ip_head_len) *4
     #Type of Service
@@ -107,6 +105,12 @@ def ip_analyze(packet):
     print("TTL:%s, Next_Header_Protocol:%s, Checksum:%s" % (ip_ttl, ip_protocol, ip_checksum))
     print("src:%s.%s.%s.%s >>> dst:%s.%s.%s.%s" % (ip_src_oct1, ip_src_oct2, ip_src_oct3, ip_src_oct4, ip_dst_oct1, ip_dst_oct2, ip_dst_oct3, ip_dst_oct4))
 
+def arp_analyze(packet):
+    print("arp解析は現在工事中！\nごめんなさい！")
+
+
+def ipv6_analyze(packet):
+    print("ipv6解析は現在工事中！\nごめんなさい！")
 
 
 if __name__ == '__main__':
