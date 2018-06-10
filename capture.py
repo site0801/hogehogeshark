@@ -3,12 +3,16 @@ import sys
 from socket import *
 ETH_P_IP = 0x800
 ETH_P_ARP = 0x806
+ETH_P_ALL = 0x003
 
-
-def main(interface):
+def main(interface, cap_packet_type):
     #socket()を作成する
-    sock = socket(PF_PACKET, SOCK_RAW, ETH_P_IP)
-    sock.bind((interface, ETH_P_IP))
+    if cap_packet_type == "IP":
+        sock = socket(PF_PACKET, SOCK_RAW, ETH_P_IP)
+        sock.bind((interface, ETH_P_IP))
+    elif cap_packet_type == "ALL":
+        sock = socket(PF_PACKET, SOCK_RAW, ETH_P_ALL)
+        sock.bind((interface, ETH_P_ALL))
     while True:
         i = 0
         j = 0
@@ -38,20 +42,20 @@ def eth_analyze(packet):
     eth_dst = ":".join(["%02x" % x for x in packet[:6]])
     #Source MAC Address
     eth_src = ":".join(["%02x" % x for x in packet[6:12]])
-    #Ethernet Type
-    ##EthernetHeaderのあとに何が続くかを示す
-    eth_type = ntohs(ord(packet[12:13]))
     #packetのデータを16進数化
     packet = packet.hex()
+    #Ethernet Type
+    ##EthernetHeaderのあとに何が続くかを示す
+    eth_type = packet[24:28]
     #出力
     print("[Ethernet Header]")
-    print("src:%s >>> dst:%s\nethertype:%04x, length:%d" % (eth_src, eth_dst, eth_type , packet_len))
+    print("src:%s >>> dst:%s\nethertype:%s, length:%d" % (eth_src, eth_dst, eth_type , packet_len))
     #eth_typeの結果からこれ以降が何かを判断して処理を投げる  
-    if eth_type == 0x0800:
+    if eth_type == "0800":
        ip_analyze(packet)
-    elif eth_type == 0x0806:
+    elif eth_type == "0806":
        arp_analyze(packet)
-    elif eth_type == 0x86DD:
+    elif eth_type == "86DD":
        ipv6_analyze(packet)
     else:
         print("このパケットのEthernetHeaderのtypeの数値が異常か対応していない数値です。\n確認してください")
@@ -117,8 +121,27 @@ def ip_analyze(packet):
         print("not support Layer4 protocol.\nごめんなさい！")
 
 def arp_analyze(packet):
+    arp_hard_type = packet[28:32]
+    arp_protocol_type = packet[32:36]
+    arp_hard_size = packet[36:38]
+    arp_protocol_size = packet[38:40]
+    arp_operation = packet[40:44]
+    #arp_eth_dst_oct1 = packet[44:56]
+    arp_eth_dst = ""
+    count = 0
+    for x, y in zip(packet[44:55:2], packet[45:56:2]):
+        z = x + y
+        arp_eth_dst += z
+        count += 1
+        if count != 6:
+            arp_eth_dst += ":"
+    #arp_eth_dst = ":".join(["%02d" % x for x in packet[44:56]]) 
+    print("[ARP Header]")
+    print("HardType:%s, ProtocolType:%s, HardSize:%s" % (arp_hard_type, arp_protocol_type, arp_hard_size, ))
+    print("ProtocolSize:%s, OperationCode:%s" % (arp_protocol_size, arp_operation))
+    print("eth_dst:%s" % (arp_eth_dst))
     print("arp解析は現在工事中！\nごめんなさい！")
-
+    
 def ipv6_analyze(packet):
     print("ipv6解析は現在工事中！\nごめんなさい！")
 
@@ -154,8 +177,9 @@ def udp_analyze(packet):
 if __name__ == '__main__':
     argvs = sys.argv
     argc = len(argvs)
-    if argc != 2:
+    if argc != 3:
       print("Please confirm argument")
       sys.exit()
     interface = argvs[1]
-    main(interface)
+    cap_packet_type = argvs[2]
+    main(interface, cap_packet_type)
