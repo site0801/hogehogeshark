@@ -126,21 +126,49 @@ def arp_analyze(packet):
     arp_hard_size = packet[36:38]
     arp_protocol_size = packet[38:40]
     arp_operation = packet[40:44]
-    #arp_eth_dst_oct1 = packet[44:56]
-    arp_eth_dst = ""
+    #ARP_Ethernet_Source
+    arp_eth_src = ""
     count = 0
     for x, y in zip(packet[44:55:2], packet[45:56:2]):
+        z = x + y
+        arp_eth_src += z
+        count += 1
+        if count != 6:
+            arp_eth_src += ":"
+    #ARP_IP_Source
+    arp_ip_src = ""
+    count = 0
+    for x, y in zip(packet[56:63:2], packet[57:64:2]):
+        z = x + y
+        arp_ip_src += str(int(z, 16))
+        count += 1
+        if count != 4:
+            arp_ip_src += "."
+    #ARP_Ethernet_Destination
+    arp_eth_dst = ""
+    count = 0
+    for x, y in zip(packet[64:75:2], packet[65:76:2]):
         z = x + y
         arp_eth_dst += z
         count += 1
         if count != 6:
             arp_eth_dst += ":"
-    #arp_eth_dst = ":".join(["%02d" % x for x in packet[44:56]]) 
+    #ARP_IP_Destination
+    arp_ip_dst = ""
+    count = 0
+    for x, y in zip(packet[76:83:2], packet[77:84:2]):
+        z = x + y
+        arp_ip_dst += str(int(z, 16))
+        count += 1
+        if count != 4:
+            arp_ip_dst += "."
     print("[ARP Header]")
     print("HardType:%s, ProtocolType:%s, HardSize:%s" % (arp_hard_type, arp_protocol_type, arp_hard_size, ))
     print("ProtocolSize:%s, OperationCode:%s" % (arp_protocol_size, arp_operation))
+    print("eth_src:%s" % (arp_eth_src))
     print("eth_dst:%s" % (arp_eth_dst))
-    print("arp解析は現在工事中！\nごめんなさい！")
+    print("ip_src:%s" % (arp_ip_src))
+    print("ip_dst:%s" % (arp_ip_dst))
     
 def ipv6_analyze(packet):
     print("ipv6解析は現在工事中！\nごめんなさい！")
