@@ -130,8 +130,7 @@ def arp_analyze(packet):
     arp_eth_src = ""
     count = 0
     for x, y in zip(packet[44:55:2], packet[45:56:2]):
-        z = x + y
-        arp_eth_src += z
+        arp_eth_src += x + y
         count += 1
         if count != 6:
             arp_eth_src += ":"
@@ -139,8 +138,7 @@ def arp_analyze(packet):
     arp_ip_src = ""
     count = 0
     for x, y in zip(packet[56:63:2], packet[57:64:2]):
-        z = x + y
-        arp_ip_src += str(int(z, 16))
+        arp_ip_src += str(int(x+y, 16))
         count += 1
         if count != 4:
             arp_ip_src += "."
@@ -148,8 +146,7 @@ def arp_analyze(packet):
     arp_eth_dst = ""
     count = 0
     for x, y in zip(packet[64:75:2], packet[65:76:2]):
-        z = x + y
-        arp_eth_dst += z
+        arp_eth_dst += x + y
         count += 1
         if count != 6:
             arp_eth_dst += ":"
@@ -157,8 +154,7 @@ def arp_analyze(packet):
     arp_ip_dst = ""
     count = 0
     for x, y in zip(packet[76:83:2], packet[77:84:2]):
-        z = x + y
-        arp_ip_dst += str(int(z, 16))
+        arp_ip_dst += str(int(x+y, 16))
         count += 1
         if count != 4:
             arp_ip_dst += "."
